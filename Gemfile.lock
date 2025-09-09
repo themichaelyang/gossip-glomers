@@ -1,0 +1,18 @@
+PATH
+  remote: vendor/gems/maelstrom_ruby
+  specs:
+    maelstrom_ruby (0.0.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+
+PLATFORMS
+  arm64-darwin-23
+  ruby
+
+DEPENDENCIES
+  maelstrom_ruby!
+
+BUNDLED WITH
+   2.7.1
