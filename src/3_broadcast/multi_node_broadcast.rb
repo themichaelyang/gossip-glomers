@@ -1,28 +1,26 @@
 #!/usr/bin/env ruby
 
 require_relative '../shared_header'
+require_relative 'array_set'
 
 class MultiBroadcastNode < Node
   def initialize
     super
 
-    @messages = []
+    @messages = ArraySet.new
     @topology = {}
 
     # {"src": "c1", "dest": "n1", "body": {"msg_id": 1, "type": "broadcast", "message": 1000}}
     on 'broadcast' do |msg|
       message = msg[:body][:message]
 
-      original_len = @messages.length
-      @messages.append(message)
-      @messages.uniq!
-      new_len = @messages.length
-
-      if original_len != new_len
+      unless @messages.include?(message)
         neighbors&.each do |nb|
           send!(nb, { type: 'broadcast', message: message })
         end
       end
+
+      @messages.add(message)
 
       reply!(msg, { type: 'broadcast_ok'})
     end
@@ -33,7 +31,7 @@ class MultiBroadcastNode < Node
     on 'read' do |msg|
       reply!(msg, { 
         type: 'read_ok',
-        messages: @messages 
+        messages: @messages.to_a
       })
     end
 
