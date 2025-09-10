@@ -3,7 +3,8 @@
 require_relative '../shared_header'
 require_relative 'array_set'
 
-class MultiBroadcastNode < Node
+
+class FaultTolerantBroadcastNode < Node
   def initialize
     super
 
@@ -16,19 +17,19 @@ class MultiBroadcastNode < Node
 
       unless @messages.include?(message)
         neighbors&.each do |nb|
-          send!(nb, { type: 'broadcast', message: message })
+          send!(nb, {type: 'broadcast', message: message})
         end
 
         @messages.add(message)
       end
 
-      reply!(msg, { type: 'broadcast_ok' })
+      reply!(msg, {type: 'broadcast_ok'})
     end
 
     on 'broadcast_ok' do |msg|
     end
 
-    on 'read' do |msg|
+    on 'read' do |msg|  
       reply!(msg, { 
         type: 'read_ok',
         messages: @messages.to_a
@@ -42,6 +43,34 @@ class MultiBroadcastNode < Node
         type: 'topology_ok'
       })
     end
+
+    # on '_replicate' do |msg|
+    #   msg[:body][:messages].each do |message|
+    #     @messages.add(message)
+    #   end
+
+    #   reply!(msg, {
+    #     type: '_replicate_ok',
+    #     messages: @messages.to_a
+    #   })
+    # end
+
+    on 'read_ok' do |msg|
+      msg[:body][:messages].each do |message|
+        @messages.add(message)
+      end
+    end
+
+    every(0.5) do
+      neighbors&.sample(1)&.each do |nb|
+        replicate(nb)
+      end
+    end
+  end
+
+  def replicate(nb)
+    # send!(nb, {type: '_replicate', messages: @messages.to_a})
+    send!(nb, {type: 'read', messages: @messages.to_a})
   end
 
   def neighbors
@@ -53,5 +82,5 @@ class MultiBroadcastNode < Node
   end
 end
 
-# puts MultiBroadcastNode.test_command
-MultiBroadcastNode.new.main!
+# puts FaultTolerantBroadcastNode.test_command
+FaultTolerantBroadcastNode.new.main!

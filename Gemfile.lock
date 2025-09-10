@@ -6,12 +6,14 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    benchmark (0.4.1)
 
 PLATFORMS
   arm64-darwin-23
   ruby
 
 DEPENDENCIES
+  benchmark
   maelstrom_ruby!
 
 BUNDLED WITH
