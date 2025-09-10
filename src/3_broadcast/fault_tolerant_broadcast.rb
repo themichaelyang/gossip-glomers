@@ -52,6 +52,7 @@ class FaultTolerantBroadcastNode < Node
 
     every(0.5) do
       neighbors&.sample(1)&.each do |nb|
+        # This is a bit naive, but sends the whole set to neighbors
         replicate(nb)
       end
     end

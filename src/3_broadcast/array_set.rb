@@ -20,6 +20,10 @@ class ArraySet < Set
       @arr
     end
   end
+  
+  def [](i)
+    @arr[i]
+  end
 end
 
 def run_benchmark
