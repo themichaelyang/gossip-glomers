@@ -1,9 +1,8 @@
 #!/usr/bin/env ruby
 
 require_relative '../shared_header'
-require 'securerandom'
 
-class BroadcastNode < Node
+class SingleBroadcastNode < Node
   def initialize
     super
 
@@ -37,5 +36,5 @@ class BroadcastNode < Node
   end
 end
 
-# puts BroadcastNode.test_command
-BroadcastNode.new.main!
+# puts SingleBroadcastNode.test_command
+SingleBroadcastNode.new.main!
