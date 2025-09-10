@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
 
-ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
-
-require 'bundler/setup'
-require 'maelstrom_ruby'
+require_relative '../shared_header'
 
 # From https://github.com/jepsen-io/maelstrom/blob/main/demo/ruby/echo_full.rb
 class EchoNode
@@ -17,6 +14,10 @@ class EchoNode
 
   def main!
     @node.main!
+  end
+
+  def self.test_command
+    "./maelstrom/maelstrom test -w echo --bin #{__FILE__} --node-count 1 --time-limit 10"
   end
 end
 

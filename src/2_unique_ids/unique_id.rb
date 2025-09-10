@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
 
-ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../Gemfile', __dir__)
-
-require 'bundler/setup'
-require 'maelstrom_ruby'
+require_relative '../shared_header'
 require 'securerandom'
 
 class UniqueIdNode
@@ -21,6 +18,11 @@ class UniqueIdNode
   def main!
     @node.main!
   end
+
+  def self.test_command
+    "./maelstrom/maelstrom test -w unique-ids --bin #{__FILE__} --time-limit 30 --rate 1000 --node-count 3 --availability total --nemesis partition"
+  end
 end
 
+puts UniqueIdNode.test_command
 UniqueIdNode.new.main!
