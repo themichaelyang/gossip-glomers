@@ -18,9 +18,9 @@ class MultiBroadcastNode < Node
         neighbors&.each do |nb|
           send!(nb, { type: 'broadcast', message: message })
         end
-      end
 
-      @messages.add(message)
+        @messages.add(message)
+      end
 
       reply!(msg, { type: 'broadcast_ok'})
     end

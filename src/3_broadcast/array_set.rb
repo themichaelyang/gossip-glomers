@@ -42,3 +42,8 @@ def run_benchmark
     }
   end
 end
+
+# > run_benchmark
+#                    user     system      total        real
+# Set#to_a       3.143631   2.833048   5.976679 (  6.364861)
+# ArraySet#to_a  0.017347   0.001403   0.018750 (  0.019443)
