@@ -24,5 +24,5 @@ class UniqueIdNode
   end
 end
 
-puts UniqueIdNode.test_command
+# puts UniqueIdNode.test_command
 UniqueIdNode.new.main!
