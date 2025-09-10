@@ -3,30 +3,35 @@
 require_relative '../shared_header'
 require_relative 'array_set'
 
-
-class FaultTolerantBroadcastNode < Node
+# https://github.com/jepsen-io/maelstrom/blob/main/doc/03-broadcast/02-performance.md
+# https://community.fly.io/t/gossip-glomers-challenge-3d-efficiency-described-is-impossible/12324
+class EfficientBroadcastNode < Node
   def initialize
     super
 
     @messages = ArraySet.new
     @topology = {}
 
-    # {"src": "c1", "dest": "n1", "body": {"msg_id": 1, "type": "broadcast", "message": 1000}}
     on 'broadcast' do |msg|
       message = msg[:body][:message]
 
       unless @messages.include?(message)
         neighbors&.each do |nb|
-          send!(nb, {type: 'broadcast', message: message})
+          # Don't gossip with source of broadcast 
+          if nb != msg[:src]
+            send!(nb, {type: 'broadcast', message: message})
+          end
         end
 
         @messages.add(message)
       end
 
-      reply!(msg, {type: 'broadcast_ok'})
-    end
+      between_servers = msg[:body][:msg_id]
 
-    on 'broadcast_ok' do |msg|
+      # Reduce response messages
+      unless between_servers.nil?
+        reply!(msg, {type: 'broadcast_ok'})
+      end
     end
 
     on 'read' do |msg|  
@@ -44,13 +49,21 @@ class FaultTolerantBroadcastNode < Node
       })
     end
 
-    on 'read_ok' do |msg|
+    on '_replicate' do |msg|
+      msg[:body][:messages].each do |message|
+        @messages.add(message)
+      end
+
+      reply!(msg, {type: '_replicate_ok', messages: @messages.to_a})
+    end
+
+    on '_replicate_ok' do |msg|
       msg[:body][:messages].each do |message|
         @messages.add(message)
       end
     end
 
-    every(0.5) do
+    every(0.2) do
       neighbors&.sample(1)&.each do |nb|
         replicate(nb)
       end
@@ -58,7 +71,7 @@ class FaultTolerantBroadcastNode < Node
   end
 
   def replicate(nb)
-    send!(nb, {type: 'read', messages: @messages.to_a})
+    send!(nb, {type: '_replicate', messages: @messages.to_a})
   end
 
   def neighbors
@@ -71,4 +84,4 @@ class FaultTolerantBroadcastNode < Node
 end
 
 # puts FaultTolerantBroadcastNode.test_command
-FaultTolerantBroadcastNode.new.main!
+EfficientBroadcastNode.new.main!
