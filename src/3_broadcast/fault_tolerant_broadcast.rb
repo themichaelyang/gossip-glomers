@@ -3,7 +3,8 @@
 require_relative '../shared_header'
 require_relative 'array_set'
 
-
+# TODO: make it wait for a response instead of syncing the whole thing
+# naively
 class FaultTolerantBroadcastNode < Node
   def initialize
     super

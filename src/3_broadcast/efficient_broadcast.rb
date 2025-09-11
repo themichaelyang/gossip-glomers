@@ -27,6 +27,7 @@ class EfficientBroadcastNode < Node
     end
 
     # Works fast with `--topology tree4`
+    # TODO: customize topology instead of using maelstrom's topologies
     on 'topology' do |msg|
       @topology = msg[:body][:topology]
 
