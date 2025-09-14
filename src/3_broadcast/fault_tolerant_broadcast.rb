@@ -3,8 +3,13 @@
 require_relative '../shared_header'
 require_relative 'array_set'
 
-# TODO: make it wait for a response instead of syncing the whole thing
-# naively
+# TODO: make it wait for a response instead of syncing the whole thing naively
+# There's a guide in https://github.com/jepsen-io/maelstrom/blob/main/doc/03-broadcast/02-performance.md for doing this
+# with sleep. 
+
+# I was trying to do this with condition variables (with Promise.new) to suspend the thread while it waits for a response,
+# but kept running into macOS thread limits. It's possible that this was because the on('broadcast') Thread was being suspended, 
+# with each callback also spawning a new Thread.
 class FaultTolerantBroadcastNode < Node
   def initialize
     super
